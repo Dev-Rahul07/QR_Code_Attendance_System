@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Successful</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #43cea2, #185a9d);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            animation: backgroundFade 5s infinite alternate;
+        }
+        @keyframes backgroundFade {
+            from { background: linear-gradient(135deg, #43cea2, #185a9d); }
+            to { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            text-align: center;
+            transform: scale(0.9);
+            animation: popUp 0.6s ease-in-out forwards;
+        }
+        @keyframes popUp {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            animation: slideIn 0.7s ease-in-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        p {
+            color: #555;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .success-icon {
+            font-size: 50px;
+            color: #43cea2;
+            margin-bottom: 15px;
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        a {
+            display: inline-block;
+            background: linear-gradient(135deg, #43cea2, #185a9d);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        a:hover {
+            background: linear-gradient(135deg, #185a9d, #43cea2);
+        }
+    </style>
+</head>
+<body>
+ 
+    <div class="container">
+        <div class="success-icon">✔</div>
+        <h2>Registration Successful</h2>
+        <p>Thank you for registering. Your details have been saved successfully.</p>
+        <a href="/">Go to Homepage</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Student QR Code</title>
+
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #e0f7fa, #ffffff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  .card {
+    background: #fff;
+    max-width: 400px;
+    padding: 25px;
+    margin: auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  h2 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+
+  p {
+    font-size: 18px;
+    color: #555;
+    margin: 8px 0;
+  }
+
+  h3 {
+    margin-top: 20px;
+    color: #34495e;
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  img {
+    margin: 15px auto;
+    width: 300px;  /* large size */
+    height: 300px;
+    border: 3px solid #3498db;
+    border-radius: 0;  /* no circle */
+    display: block;
+    transition: transform 0.3s;
+  }
+
+  img:hover {
+    transform: scale(1.05);
+  }
+
+  .debug-text {
+    font-size: 14px;
+    color: #777;
+    margin-top: 15px;
+    font-style: italic;
+  }
+</style>
+
+</head>
+<body>
+  <div class="card">
+    <h2>Welcome, {{ student_name }}</h2>
+    <p>Roll No: {{ student_roll_number }}</p>
+    <p>Email: {{ student_email }}</p>
+
+    <h3>Your Dynamic QR Code</h3>
+    <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="Dynamic QR Code" />
+
+    <p class="debug-text">QR Code Data: {{ qr_data }}</p>
+  </div>
+</body>
+</html>
