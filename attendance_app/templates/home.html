@@ -1,169 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>QR Attendance System</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <style>
-    body {
-      background: linear-gradient(to right, #e0f7fa, #ffffff);
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    .navbar-brand img {
-      height: 40px;
-      margin-right: 10px;
-    }
-    .card {
-      border-radius: 16px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .card:hover {
-      transform: scale(1.03);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-    .btn-custom {
-      background-color: #ffc107;
-      color: black;
-      font-weight: 600;
-      border-radius: 12px;
-      padding: 10px 20px;
-    }
-    .btn-scan {
-      background-color: #ffc107;
-      color: black;
-      font-weight: bold;
-      padding: 15px 30px;
-      font-size: 1.25rem;
-      border-radius: 14px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      transition: all 0.3s ease;
-    }
-    .btn-scan:hover {
-      transform: scale(1.05);
-      background-color: #ffca2c;
-    }
-    .footer {
-      background-color: #343a40;
-      color: white;
-      padding: 20px 0;
-      margin-top: 50px;
-    }
-    .loader {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      background: #fff;
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .loader span {
-      width: 50px;
-      height: 50px;
-      border: 6px solid #ffc107;
-      border-top: 6px solid transparent;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QR Attendance System</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: linear-gradient(to right, #e0f7fa, #ffffff);
+        font-family: "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .navbar-brand img {
+        height: 40px;
+        margin-right: 10px;
+      }
+      .card {
+        border-radius: 16px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card:hover {
+        transform: scale(1.03);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+      .btn-custom {
+        background-color: #ffc107;
+        color: black;
+        font-weight: 600;
+        border-radius: 12px;
+        padding: 10px 20px;
+      }
+      .btn-scan {
+        background-color: #ffc107;
+        color: black;
+        font-weight: bold;
+        padding: 15px 30px;
+        font-size: 1.25rem;
+        border-radius: 14px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+      .btn-scan:hover {
+        transform: scale(1.05);
+        background-color: #ffca2c;
+      }
+      .footer {
+        background-color: #343a40;
+        color: white;
+        padding: 20px 0;
+        margin-top: 50px;
+      }
+      .loader {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .loader span {
+        width: 50px;
+        height: 50px;
+        border: 6px solid #ffc107;
+        border-top: 6px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      #stopBtn {
+        background-color: #ff4d4d; /* bright red */
+        color: white; /* text color */
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: 0.3s; /* smooth hover effect */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      }
 
-  <!-- Loading Screen -->
-  <div class="loader" id="loader">
-    <span></span>
-  </div>
+      #stopBtn:hover {
+        background-color: #ff1a1a; /* darker red on hover */
+        transform: scale(1.05); /* subtle zoom effect */
+      }
 
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center" href="#">
-        <span>QR Attendance System</span>
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="registerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Register
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="registerDropdown">
-              <li><a class="dropdown-item" href="student-register/">Register as Student</a></li>
-              <li><a class="dropdown-item" href="teacher-register/">Register as Teacher</a></li>
-            </ul>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Login
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="loginDropdown">
-              <li><a class="dropdown-item" href="student-login/">Login as Student</a></li>
-              <li><a class="dropdown-item" href="teacher-login/">Login as Teacher</a></li>
-            </ul>
-          </li>
-          <li class="nav-item"><a class="nav-link" href="contact/">Contact</a></li>
-        </ul>
-      </div>
+      #stopBtn:active {
+        background-color: #e60000; /* even darker on click */
+        transform: scale(0.95);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading Screen -->
+    <div class="loader" id="loader">
+      <span></span>
     </div>
-  </nav>
 
-  <!-- Hero Section -->
-  <div class="container text-center py-5">
-    <h1 class="mb-3">Welcome to QR Code Attendance System</h1>
-    <p class="lead mb-5">Mark attendance easily using QR codes.</p>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+          <span>QR Attendance System</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-    <div class="row justify-content-center g-4">
-      <div class="col-md-5">
-        <div class="card p-4 shadow-sm">
-          <h3>Student</h3>
-          <p>Register and get your QR code instantly.</p>
-          <a href="student-register/" class="btn btn-custom mt-2">Register as Student</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="#">Home</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="registerDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Register
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="registerDropdown">
+                <li>
+                  <a class="dropdown-item" href="student-register/"
+                    >Register as Student</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="teacher-register/"
+                    >Register as Teacher</a
+                  >
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="loginDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Login
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="loginDropdown">
+                <li>
+                  <a class="dropdown-item" href="student-login/"
+                    >Login as Student</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="teacher-login/"
+                    >Login as Teacher</a
+                  >
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="contact/">Contact</a>
+            </li>
+          </ul>
         </div>
       </div>
-      <div class="col-md-5">
-        <div class="card p-4 shadow-sm">
-          <h3>Teacher</h3>
-          <p>Mark & manage student attendance with ease.</p>
-          <a href="teacher-register/" class="btn btn-custom mt-2">Register as Teacher</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="container text-center py-5">
+      <h1 class="mb-3">Welcome to QR Code Attendance System</h1>
+      <p class="lead mb-5">Mark attendance easily using QR codes.</p>
+
+      <div class="row justify-content-center g-4">
+        <div class="col-md-5">
+          <div class="card p-4 shadow-sm">
+            <h3>Student</h3>
+            <p>Register and get your QR code instantly.</p>
+            <a href="student-register/" class="btn btn-custom mt-2"
+              >Register as Student</a
+            >
+          </div>
         </div>
+        <div class="col-md-5">
+          <div class="card p-4 shadow-sm">
+            <h3>Teacher</h3>
+            <p>Mark & manage student attendance with ease.</p>
+            <a href="teacher-register/" class="btn btn-custom mt-2"
+              >Register as Teacher</a
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Scan QR Button -->
+      <div class="mt-5">
+        <a href="qr-scan/">
+          <button class="btn btn-scan">📷 Scan QR to Mark Attendance</button>
+        </a>
+        <button id="stopBtn">🛑 Stop Scanning</button>
       </div>
     </div>
 
-    <!-- Scan QR Button -->
-    <div class="mt-5">
-      <a href="qr-scan/">
-        <button class="btn btn-scan">📷 Scan QR to Mark Attendance</button>
-      </a>
+    <!-- Footer -->
+    <div class="footer text-center">
+      <div class="container">
+        <p>&copy; 2025 QR Attendance System. All Rights Reserved.</p>
+      </div>
     </div>
-  </div>
 
-  <!-- Footer -->
-  <div class="footer text-center">
-    <div class="container">
-      <p>&copy; 2025 QR Attendance System. All Rights Reserved.</p>
-    </div>
-  </div>
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Bootstrap JS Bundle (includes Popper) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Loader Script -->
-  <script>
-    window.addEventListener('load', () => {
-      document.getElementById('loader').style.display = 'none';
-    });
-  </script>
-</body>
+    <!-- Loader Script -->
+    <script>
+      window.addEventListener("load", () => {
+        document.getElementById("loader").style.display = "none";
+      });
+    </script>
+    <script>
+      document.getElementById("stopBtn").addEventListener("click", () => {
+        fetch("/stop-scan/")
+          .then((res) => res.json())
+          .then((data) => alert("Scanning stopped!"));
+      });
+    </script>
+  </body>
 </html>

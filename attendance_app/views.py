@@ -99,51 +99,82 @@ def student_login(request):
     return render(request, 'student_login.html')
 
 
+from django.http import JsonResponse
+
+scanning_active = True
+
 def qr_scan_page(request):
     today = datetime.date.today()
     all_students = Student.objects.all()
 
-    # Mark absent if not already marked
+    # Mark all absent (only if not already marked)
     for s in all_students:
         if not AttendanceRecord.objects.filter(student=s, date=today).exists():
             AttendanceRecord.objects.create(student=s, status='Absent', date=today)
 
+    # Open camera
     cap = cv2.VideoCapture(0)
     detector = cv2.QRCodeDetector()
+
+    message = "No QR detected!"
 
     while True:
         success, img = cap.read()
         if not success:
             continue
 
+        # Detect QR code
         data, bbox, _ = detector.detectAndDecode(img)
+
         if data:
-            roll_no = data.split('_')[0]  # get only roll_no before '_'
+            roll_no = data.split('_')[0]  # Extract roll number
             students = Student.objects.filter(roll_no=roll_no)
             if students.exists():
                 student = students.first()
+
+                # Mark present
                 AttendanceRecord.objects.update_or_create(
                     student=student,
                     date=today,
                     defaults={'status': 'Present'}
                 )
+
+                # Increment attendance count
                 student.attendance_count += 1
                 student.save()
-                message = f"Attendance marked for {student.name} (Roll No: {student.roll_no})"
+
+                message = f"✅ Attendance marked for {student.name} (Roll No: {student.roll_no})"
             else:
-                message = "Student not found!"
+                message = "⚠️ Student not found!"
 
-            cap.release()
-            cv2.destroyAllWindows()
-            return render(request, 'attendance_marked.html', {'message': message})
+            # Show message for 2 seconds before closing
+            cv2.putText(img, "Scan Successful!", (50, 50),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 3)
+            cv2.imshow("QR Scanner", img)
+            cv2.waitKey(1500)  # 1.5 second delay
+            break  # Stop scanning after first scan
 
+        # Display camera feed
         cv2.imshow("QR Scanner", img)
+
+        # Optional manual stop (press 'q')
         if cv2.waitKey(1) == ord('q'):
+            message = "❌ Scan Cancelled"
             break
 
+    # Cleanup
     cap.release()
     cv2.destroyAllWindows()
-    return render(request, 'attendance_marked.html', {'message': "QR Scan Cancelled"})
+
+    return render(request, 'attendance_marked.html', {'message': message})
+
+
+def stop_scan(request):
+    global scanning_active
+    scanning_active = False
+    return JsonResponse({'status': 'stopped'})
+
+
 
 from django.shortcuts import render
 from .models import Student, AttendanceRecord
