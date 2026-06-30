@@ -1,105 +1,60 @@
-# QR Code Based Attendance System (Django)
+# Complete QR-Based Attendance Management System
 
-## 📌 Description
+This is a production-quality local development setup for a QR Code Based Attendance Management System.
 
-This is a web-based attendance system built using **Python Django**.  
-It allows teachers to mark student attendance by **scanning QR codes**, and also provides manual attendance, login systems, export to Excel, and a clean UI.
+## Architecture
 
-It is designed to make attendance fast, error-free, and paperless.
+The project is structured into two main components:
+- **Backend:** Django 5, Django REST Framework, PostgreSQL, Redis, Celery, and Channels.
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS, Shadcn UI.
+- **Infrastructure:** Docker Compose is used to orchestrate the entire stack.
 
----
+## Prerequisites
 
-## 🚀 Features
+- Docker and Docker Compose installed on your machine.
+- Ports 8000 (Backend), 5173 (Frontend), 5432 (PostgreSQL), and 6379 (Redis) must be available.
 
-### 👨‍🎓 Student Module
-- Register as student with basic info
-- Generates unique QR Code when they login
+## How to Run
 
+1. Simply run the following command in the root of the project:
+   ```bash
+   docker compose up --build
+   ```
+2. The backend migrations will run automatically.
+3. To seed initial data (Admin, Teacher, Student), open a new terminal and run:
+   ```bash
+   docker compose exec backend python seed.py
+   ```
+   **Demo Users:**
+   - Admin: `admin` / `admin123`
+   - Teacher: `teacher1` / `teacher123`
+   - Student: `student1` / `student123`
 
-### 👨‍🏫 Teacher Module
-- Register & login
-- View all students
-- Mark attendance:
-  - ✅ By scanning student QR code
-- View attendance records
-- Export attendance to Excel
+## Accessing the Application
 
+- **Frontend Application:** http://localhost:5173
+- **Backend Admin:** http://localhost:8000/admin/
+- **API Swagger Documentation:** http://localhost:8000/api/docs/
 
-### 🎨 UI Features
-- Beautiful home page with background or gradient
-- Navbar with logo
-- Footer with basic info
-- Loading animations
-- Mobile responsive design
-- Toast messages for alerts
+## Features Implemented
 
----
+### Backend Core
+- **JWT Authentication:** Secure role-based access control (Admin, Teacher, Student).
+- **Domain Models:** Departments, ClassRooms, Sections, Student Profiles, Teacher Profiles.
+- **QR Code Engine:** Secure, signed, expiring QR generation using `pyzbar` and `qrcode`.
+- **Attendance Logic:** Handles check-in and check-out tracking, working hours, and duplicate prevention.
+- **Leave & Holiday Management:** Workflows for students applying for leave and teachers approving them.
+- **Real-Time Notifications:** WebSocket integration using Django Channels.
+- **Reports & Analytics:** API endpoints for CSV/Excel exports and dashboard statistics.
 
-## 🛠️ Technologies Used
+### Frontend Architecture
+- **Vite + React 19:** Fast development server.
+- **Routing:** React Router with Protected Routes based on User Roles.
+- **State Management:** Context API for Auth, TanStack Query ready for API calls.
+- **Styling:** Tailwind CSS + Shadcn UI base.
+- **Login Flow:** Functional JWT login with automatic redirect to role-based dashboards.
 
-- **Frontend:** HTML, CSS, Bootstrap, JavaScript
-- **Backend:** Python, Django
-- **Database:** SQLite
-- **Libraries:** qrcode, pandas, openpyxl
-
----
-
-## 📂 Folder Structure (Short)
-
-```
-attendance_app/
-├── templates/
-│   ├── student_register.html
-│   ├── teacher_dashboard.html
-├── static/
-│   ├── css/
-│   ├── js/
-│   └── images/
-├── media/
-│   └── qr_codes/
-├── attendance/
-│   ├── models.py
-│   ├── views.py
-│   ├── urls.py
-│   └── forms.py
-├── manage.py
-└── db.sqlite3
-```
-
----
-
-## 💻 How to Run Locally
-
-```bash
-git clone https://github.com/your-username/your-repo-name.git
-cd attendance_app
-pip install -r requirements.txt
-python manage.py makemigrations
-python manage.py migrate
-python manage.py runserver
-```
-
-Open browser → `http://127.0.0.1:8000/`
-
----
-
-## 📈 Future Improvements
-
-- Face recognition for attendance (optional)
-- Email or popup notifications for absentees
-- Admin panel with full CRUD access
-- Holiday/weekend detection
-
----
-
-## 🙋 Author
-
-**Rahul Pandit**  
-BCA Graduate | Python Developer  
-Email:  panditbyte@email.com
-
----
-
-## ⭐ GitHub Repo
-
-If you like this project, give it a ⭐ on GitHub!
+## Next Steps for Frontend UI
+The backend is fully complete. The frontend has a robust architecture and authentication flow. To complete the UI layer:
+1. Implement the generic `QR Scanner` component using the browser `MediaDevices` API and send the decoded string to `POST /api/attendance/scan-qr/`.
+2. Expand the `AdminDashboard`, `TeacherDashboard`, and `StudentDashboard` placeholder pages with Recharts and data tables hitting the respective backend endpoints.
