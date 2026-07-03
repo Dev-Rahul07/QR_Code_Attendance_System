@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
-import { QrCode, UserCheck, CalendarOff, LogOut, RefreshCw } from 'lucide-react';
+import { QrCode, UserCheck, CalendarOff, LogOut, RefreshCw, Activity } from 'lucide-react';
+import { 
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer 
+} from 'recharts';
 
 interface StudentStats {
     attendance_percentage: number;
@@ -10,22 +13,52 @@ interface StudentStats {
     pending_leaves: number;
 }
 
+interface AttendanceRecord {
+    id: string;
+    date: string;
+    check_in: string;
+    status: string;
+}
+
 export default function StudentDashboard() {
     const { logout, user } = useAuth();
     const navigate = useNavigate();
     const [stats, setStats] = useState<StudentStats | null>(null);
     const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+    const [chartData, setChartData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchDashboardData = async () => {
         setLoading(true);
         try {
-            const [statsRes, qrRes] = await Promise.all([
+            const [statsRes, qrRes, logsRes] = await Promise.all([
                 axiosClient.get('/dashboard/stats/'),
-                axiosClient.get('/student/my-qr/')
+                axiosClient.get('/student/my-qr/'),
+                axiosClient.get('/attendance/list/')
             ]);
             setStats(statsRes.data);
             setQrCodeUrl(qrRes.data.qr_image);
+
+            const allLogs = (logsRes.data.results || logsRes.data) as AttendanceRecord[];
+            
+            // Process chart data (last 7 days)
+            const last7Days = [...Array(7)].map((_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                return d.toISOString().split('T')[0];
+            }).reverse();
+
+            const groupedData = last7Days.map(date => {
+                const logForDate = allLogs.find(log => log.date === date);
+                return {
+                    date: new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
+                    status: logForDate ? logForDate.status : 'None',
+                    val: logForDate && logForDate.status === 'Present' ? 1 : 0
+                };
+            });
+            
+            setChartData(groupedData);
+
         } catch (error) {
             console.error("Failed to fetch student data", error);
         } finally {
@@ -88,20 +121,52 @@ export default function StudentDashboard() {
                         </button>
                     </div>
 
-                    {/* Stats Section */}
-                    <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 content-start">
-                        <StatCard 
-                            title="Attendance Percentage" 
-                            value={`${stats?.attendance_percentage || 0}%`} 
-                            icon={<UserCheck className="w-8 h-8 text-primary" />} 
-                            bg="bg-primary/10"
-                        />
-                        <StatCard 
-                            title="Today's Status" 
-                            value={stats?.today_status || 'Unknown'} 
-                            icon={<CalendarOff className="w-8 h-8 text-amber-500" />} 
-                            bg="bg-amber-50 dark:bg-amber-900/20"
-                        />
+                    {/* Stats & Charts Section */}
+                    <div className="lg:col-span-2 space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <StatCard 
+                                title="Attendance Percentage" 
+                                value={`${stats?.attendance_percentage || 0}%`} 
+                                icon={<UserCheck className="w-8 h-8 text-primary" />} 
+                                bg="bg-primary/10"
+                            />
+                            <StatCard 
+                                title="Today's Status" 
+                                value={stats?.today_status || 'Unknown'} 
+                                icon={<CalendarOff className="w-8 h-8 text-amber-500" />} 
+                                bg="bg-amber-50 dark:bg-amber-900/20"
+                            />
+                        </div>
+
+                        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                            <div className="flex items-center gap-2 mb-6">
+                                <Activity className="text-primary" />
+                                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Your Attendance (Last 7 Days)</h2>
+                            </div>
+                            <div className="h-64">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: -30, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#6B7280', fontSize: 12}} dy={10} />
+                                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#6B7280', fontSize: 12}} tickFormatter={(val) => val === 1 ? 'Present' : 'Absent'} domain={[0, 1]} ticks={[0, 1]} />
+                                        <Tooltip 
+                                            cursor={{fill: 'transparent'}}
+                                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                            labelStyle={{ color: '#374151', fontWeight: 'bold' }}
+                                            formatter={(_value, _name, props) => [props.payload.status, 'Status']}
+                                        />
+                                        <Bar dataKey="val" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                                            {
+                                                chartData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.status === 'Present' ? '#10B981' : entry.status === 'Absent' ? '#EF4444' : '#D1D5DB'} />
+                                                ))
+                                            }
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 

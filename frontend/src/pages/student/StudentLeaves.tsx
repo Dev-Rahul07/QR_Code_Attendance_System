@@ -9,41 +9,65 @@ interface LeaveRequest {
     start_date: string;
     end_date: string;
     status: string;
+    teacher_name?: string;
     teacher_remarks?: string;
     created_at: string;
 }
 
+interface Teacher {
+    id: string;
+    name: string;
+    department_name: string;
+}
+
 export default function StudentLeaves() {
     const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
+    const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
 
     // Form state
     const [leaveType, setLeaveType] = useState('Sick Leave');
+    const [selectedTeacher, setSelectedTeacher] = useState('');
     const [reason, setReason] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
 
-    const fetchLeaves = async () => {
+    const fetchData = async () => {
         try {
-            const res = await axiosClient.get('/leaves/');
-            setLeaves(res.data);
+            const [leavesRes, teachersRes] = await Promise.all([
+                axiosClient.get('/leaves/'),
+                axiosClient.get('/teachers/')
+            ]);
+            setLeaves(leavesRes.data.results || leavesRes.data);
+            const teacherList = teachersRes.data.results || teachersRes.data;
+            setTeachers(teacherList);
+            if (teacherList.length > 0) {
+                setSelectedTeacher(teacherList[0].id);
+            }
         } catch (error) {
-            toast.error("Failed to fetch leaves");
+            toast.error("Failed to fetch data");
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchLeaves();
+        fetchData();
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!selectedTeacher) {
+            toast.error("Please select a teacher");
+            return;
+        }
+
         try {
             await axiosClient.post('/leaves/', {
                 leave_type: leaveType,
+                teacher: selectedTeacher,
                 reason,
                 start_date: startDate,
                 end_date: endDate
@@ -53,7 +77,7 @@ export default function StudentLeaves() {
             setReason('');
             setStartDate('');
             setEndDate('');
-            fetchLeaves();
+            fetchData();
         } catch (error) {
             toast.error("Failed to submit leave request");
         }
@@ -91,7 +115,20 @@ export default function StudentLeaves() {
                                     <option>Other</option>
                                 </select>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1 dark:text-gray-300">Assign to Teacher</label>
+                                <select 
+                                    required
+                                    value={selectedTeacher}
+                                    onChange={(e) => setSelectedTeacher(e.target.value)}
+                                    className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                >
+                                    {teachers.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name} ({t.department_name})</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 col-span-2">
                                 <div>
                                     <label className="block text-sm font-medium mb-1 dark:text-gray-300">Start Date</label>
                                     <input 
@@ -131,6 +168,7 @@ export default function StudentLeaves() {
                     <thead>
                         <tr className="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 text-sm">
                             <th className="px-6 py-4 font-medium">Type</th>
+                            <th className="px-6 py-4 font-medium">Teacher</th>
                             <th className="px-6 py-4 font-medium">Duration</th>
                             <th className="px-6 py-4 font-medium">Reason</th>
                             <th className="px-6 py-4 font-medium">Remarks</th>
@@ -145,6 +183,7 @@ export default function StudentLeaves() {
                         ) : leaves.map((leave) => (
                             <tr key={leave.id} className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
                                 <td className="px-6 py-4 text-gray-900 dark:text-gray-100">{leave.leave_type}</td>
+                                <td className="px-6 py-4 text-gray-600 dark:text-gray-300 text-sm">{leave.teacher_name || 'N/A'}</td>
                                 <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{leave.start_date} to {leave.end_date}</td>
                                 <td className="px-6 py-4 text-gray-600 dark:text-gray-300 truncate max-w-xs">{leave.reason}</td>
                                 <td className="px-6 py-4 text-gray-600 dark:text-gray-300 italic text-sm">{leave.teacher_remarks || '-'}</td>

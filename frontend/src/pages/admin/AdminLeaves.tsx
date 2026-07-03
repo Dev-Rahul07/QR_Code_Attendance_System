@@ -19,7 +19,7 @@ export default function AdminLeaves() {
     const fetchLeaves = async () => {
         try {
             const res = await axiosClient.get('/leaves/');
-            setLeaves(res.data);
+            setLeaves(res.data.results || res.data);
         } catch (error) {
             console.error("Failed to fetch leaves");
         } finally {

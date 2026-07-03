@@ -10,6 +10,7 @@ urlpatterns = [
     # API endpoints
     path('api/accounts/', include('accounts.urls')),
     path('api/student/', include('students.urls')),
+    path('api/teachers/', include('teachers.urls')),
     path('api/attendance/', include('attendance.urls')),
     path('api/leaves/', include('leave_management.urls')),
     path('api/holidays/', include('holiday_management.urls')),

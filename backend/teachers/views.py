@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from rest_framework import generics, permissions
+from .models import TeacherProfile
+from .serializers import TeacherProfileSerializer
 
-# Create your views here.
+class TeacherListView(generics.ListAPIView):
+    queryset = TeacherProfile.objects.all().select_related('user', 'department').order_by('user__first_name')
+    serializer_class = TeacherProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]

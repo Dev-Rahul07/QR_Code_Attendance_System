@@ -8,7 +8,7 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = LeaveRequest
         fields = '__all__'
-        read_only_fields = ['id', 'status', 'teacher_remarks', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'student', 'status', 'teacher_remarks', 'created_at', 'updated_at']
 
 class LeaveApprovalSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=['Approved', 'Rejected'])

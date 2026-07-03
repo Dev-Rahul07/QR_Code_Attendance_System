@@ -13,7 +13,7 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
         if user.role == 'Student':
             return LeaveRequest.objects.filter(student=user.student_profile).order_by('-created_at')
         elif user.role == 'Teacher':
-            return LeaveRequest.objects.filter(teacher=user.teacher_profile).order_by('-created_at')
+            return LeaveRequest.objects.filter(teacher=user.teacher_profile).order_by('-created_at').distinct()
         elif user.role == 'Admin':
             return LeaveRequest.objects.all().order_by('-created_at')
         return LeaveRequest.objects.none()

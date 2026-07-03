@@ -27,7 +27,7 @@ export default function Holidays() {
     const fetchHolidays = async () => {
         try {
             const res = await axiosClient.get('/holidays/');
-            setHolidays(res.data);
+            setHolidays(res.data.results || res.data);
         } catch (error) {
             console.error("Failed to fetch holidays");
         } finally {

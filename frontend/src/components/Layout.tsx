@@ -3,8 +3,9 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
     LayoutDashboard, Users, CalendarOff, CalendarDays, 
-    QrCode, ListChecks, LogOut, Menu, X, FileText
+    QrCode, ListChecks, LogOut, Menu, X, FileText, UserCircle
 } from 'lucide-react';
+import { NotificationDropdown } from './NotificationDropdown';
 
 export function Layout() {
     const { user, logout } = useAuth();
@@ -38,15 +39,22 @@ export function Layout() {
                         <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
                             QR Attendance
                         </h1>
-                        <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                            <X size={24} />
-                        </button>
+                        <div className="flex items-center gap-4">
+                            <NotificationDropdown />
+                            <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                                <X size={24} />
+                            </button>
+                        </div>
                     </div>
 
                     <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
-                                {user.first_name?.[0] || user.username[0]}
+                            <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg overflow-hidden border border-primary/20">
+                                {user.profile_image ? (
+                                    <img src={user.profile_image} alt="Profile" className="w-full h-full object-cover" />
+                                ) : (
+                                    user.first_name?.[0] || user.username[0]
+                                )}
                             </div>
                             <div>
                                 <p className="font-semibold text-sm">{user.first_name} {user.last_name}</p>
@@ -95,9 +103,12 @@ export function Layout() {
                     <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
                         QR Attendance
                     </h1>
-                    <button onClick={() => setSidebarOpen(true)} className="p-2 -mr-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                        <Menu size={24} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <NotificationDropdown />
+                        <button onClick={() => setSidebarOpen(true)} className="p-2 -mr-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                            <Menu size={24} />
+                        </button>
+                    </div>
                 </header>
 
                 {/* Page Content */}
@@ -113,10 +124,12 @@ function getNavItems(role: string) {
     if (role === 'Admin') {
         return [
             { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+            { path: '/admin/users', label: 'Users', icon: Users },
             { path: '/admin/attendance', label: 'Attendance Logs', icon: ListChecks },
             { path: '/admin/leaves', label: 'Leave Requests', icon: CalendarOff },
             { path: '/admin/holidays', label: 'Holidays', icon: CalendarDays },
             { path: '/admin/reports', label: 'Reports', icon: FileText },
+            { path: '/admin/profile', label: 'Profile', icon: UserCircle },
         ];
     }
     if (role === 'Teacher') {
@@ -126,6 +139,8 @@ function getNavItems(role: string) {
             { path: '/teacher/attendance', label: 'Class Attendance', icon: ListChecks },
             { path: '/teacher/leaves', label: 'Leave Approvals', icon: CalendarOff },
             { path: '/teacher/holidays', label: 'Holidays', icon: CalendarDays },
+            { path: '/teacher/reports', label: 'Reports', icon: FileText },
+            { path: '/teacher/profile', label: 'Profile', icon: UserCircle },
         ];
     }
     if (role === 'Student') {
@@ -134,6 +149,7 @@ function getNavItems(role: string) {
             { path: '/student/attendance', label: 'My Attendance', icon: ListChecks },
             { path: '/student/leaves', label: 'My Leaves', icon: CalendarOff },
             { path: '/student/holidays', label: 'Holidays', icon: CalendarDays },
+            { path: '/student/profile', label: 'Profile', icon: UserCircle },
         ];
     }
     return [];

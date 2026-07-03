@@ -9,7 +9,7 @@ class ExportAttendanceView(views.APIView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        format_type = request.query_params.get('format', 'csv')
+        format_type = request.query_params.get('file_format', 'csv')
         
         if user.role == 'Admin':
             qs = AttendanceRecord.objects.all().select_related('student__user', 'teacher__user')
@@ -31,15 +31,26 @@ class ExportAttendanceView(views.APIView):
                 'Late Minutes': record.late_minutes
             })
             
-        df = pd.DataFrame(data)
+        df = pd.DataFrame(data, columns=[
+            'Date', 'Student Name', 'Enrollment No', 'Check In', 
+            'Check Out', 'Status', 'Working Hours', 'Late Minutes'
+        ])
         
         if format_type == 'excel':
-            response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-            response['Content-Disposition'] = f'attachment; filename=attendance_export_{datetime.now().strftime("%Y%m%d%H%M%S")}.xlsx'
-            df.to_excel(response, index=False)
+            import io
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                df.to_excel(writer, index=False)
+            
+            output.seek(0)
+            response = HttpResponse(output.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            response['Content-Disposition'] = f'attachment; filename="attendance_export_{datetime.now().strftime("%Y%m%d%H%M%S")}.xlsx"'
             return response
         else:
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = f'attachment; filename=attendance_export_{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
-            df.to_csv(response, index=False)
+            import io
+            output = io.StringIO()
+            df.to_csv(output, index=False)
+            output.seek(0)
+            response = HttpResponse(output.getvalue(), content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="attendance_export_{datetime.now().strftime("%Y%m%d%H%M%S")}.csv"'
             return response

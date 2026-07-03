@@ -7,6 +7,7 @@ import { Toaster } from 'sonner';
 import Login from './pages/Login';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import UserManagement from './pages/admin/UserManagement';
 import AdminLeaves from './pages/admin/AdminLeaves';
 import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import Scanner from './pages/teacher/Scanner';
@@ -15,6 +16,8 @@ import StudentDashboard from './pages/student/StudentDashboard';
 import StudentLeaves from './pages/student/StudentLeaves';
 import AttendanceLogs from './pages/shared/AttendanceLogs';
 import Holidays from './pages/shared/Holidays';
+import Reports from './pages/shared/Reports';
+import Profile from './pages/shared/Profile';
 import { Layout } from './components/Layout';
 
 const queryClient = new QueryClient();
@@ -30,10 +33,12 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
               <Route element={<Layout />}>
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/users" element={<UserManagement />} />
                 <Route path="/admin/attendance" element={<AttendanceLogs role="Admin" />} />
                 <Route path="/admin/leaves" element={<AdminLeaves />} />
                 <Route path="/admin/holidays" element={<Holidays />} />
-                <Route path="/admin/reports" element={<div className="p-8 text-center text-gray-500">Reports export logic goes here...</div>} />
+                <Route path="/admin/reports" element={<Reports />} />
+                <Route path="/admin/profile" element={<Profile />} />
               </Route>
             </Route>
             
@@ -44,6 +49,8 @@ function App() {
                 <Route path="/teacher/attendance" element={<AttendanceLogs role="Teacher" />} />
                 <Route path="/teacher/leaves" element={<LeaveApprovals />} />
                 <Route path="/teacher/holidays" element={<Holidays />} />
+                <Route path="/teacher/reports" element={<Reports />} />
+                <Route path="/teacher/profile" element={<Profile />} />
               </Route>
             </Route>
             
@@ -53,6 +60,7 @@ function App() {
                 <Route path="/student/attendance" element={<AttendanceLogs role="Student" />} />
                 <Route path="/student/leaves" element={<StudentLeaves />} />
                 <Route path="/student/holidays" element={<Holidays />} />
+                <Route path="/student/profile" element={<Profile />} />
               </Route>
             </Route>
             

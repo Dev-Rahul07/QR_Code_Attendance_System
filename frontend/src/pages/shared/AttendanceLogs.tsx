@@ -4,9 +4,9 @@ import axiosClient from '../../api/axiosClient';
 interface AttendanceRecord {
     id: string;
     student_name?: string;
-    student_roll_number?: string;
+    student_enrollment?: string;
     date: string;
-    time_in: string;
+    check_in: string;
     status: string;
 }
 
@@ -17,7 +17,7 @@ export default function AttendanceLogs({ role }: { role: 'Admin' | 'Teacher' | '
     const fetchRecords = async () => {
         try {
             const res = await axiosClient.get('/attendance/list/');
-            setRecords(res.data);
+            setRecords(res.data.results || res.data);
         } catch (error) {
             console.error("Failed to fetch attendance logs");
         } finally {
@@ -60,10 +60,10 @@ export default function AttendanceLogs({ role }: { role: 'Admin' | 'Teacher' | '
                             ) : records.map((record) => (
                                 <tr key={record.id} className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
                                     {role !== 'Student' && <td className="px-6 py-4 text-gray-900 dark:text-gray-100">{record.student_name}</td>}
-                                    {role !== 'Student' && <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{record.student_roll_number}</td>}
+                                    {role !== 'Student' && <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{record.student_enrollment}</td>}
                                     <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{record.date}</td>
                                     <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
-                                        {record.time_in ? new Date(`1970-01-01T${record.time_in}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
+                                        {record.check_in ? new Date(`1970-01-01T${record.check_in}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
