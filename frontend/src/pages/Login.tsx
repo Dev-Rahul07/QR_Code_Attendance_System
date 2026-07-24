@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axiosClient from '../api/axiosClient';
 import { toast } from 'sonner';
@@ -97,6 +97,15 @@ export default function Login() {
                         </button>
                     </div>
                 </form>
+
+                <div className="text-center mt-4">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Don't have an account?{' '}
+                        <Link to="/register" className="font-medium text-primary hover:text-primary/80">
+                            Register here
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     );

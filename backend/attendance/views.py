@@ -1,4 +1,4 @@
-from rest_framework import permissions, status, views, generics
+from rest_framework import permissions, status, views
 from rest_framework.response import Response
 from django.utils import timezone
 from datetime import datetime, date
@@ -72,16 +72,23 @@ class ScanQRView(views.APIView):
                     "error": f"Student {student_profile.user.get_full_name()} has already checked out for today."
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-class AttendanceListView(generics.ListAPIView):
+class AttendanceListView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = AttendanceRecordSerializer
 
-    def get_queryset(self):
-        user = self.request.user
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        qs = AttendanceRecord.objects.none()
         if user.role == 'Admin':
-            return AttendanceRecord.objects.all().order_by('-date', '-created_at')
+            qs = AttendanceRecord.objects.all()
         elif user.role == 'Teacher':
-            return AttendanceRecord.objects.filter(student__section__assigned_teachers=user.teacher_profile).order_by('-date', '-created_at')
+            qs = AttendanceRecord.objects.filter(student__section__assigned_teachers=user.teacher_profile)
         elif user.role == 'Student':
-            return AttendanceRecord.objects.filter(student=user.student_profile).order_by('-date', '-created_at')
-        return AttendanceRecord.objects.none()
+            qs = AttendanceRecord.objects.filter(student=user.student_profile)
+            
+        date_filter = request.query_params.get('date')
+        if date_filter:
+            qs = qs.filter(date=date_filter)
+            
+        qs = qs.order_by('-date', '-created_at')
+        serializer = AttendanceRecordSerializer(qs, many=True)
+        return Response(serializer.data)

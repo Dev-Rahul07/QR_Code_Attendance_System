@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axiosClient from '../../api/axiosClient';
-import { Users, UserCheck, CalendarOff, LogOut, Activity } from 'lucide-react';
+import { Users, UserCheck, CalendarOff, LogOut, Activity, Sparkles } from 'lucide-react';
 import { 
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
@@ -31,6 +31,8 @@ export default function AdminDashboard() {
     const [recentLogs, setRecentLogs] = useState<AttendanceRecord[]>([]);
     const [chartData, setChartData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [aiReport, setAiReport] = useState<string | null>(null);
+    const [aiLoading, setAiLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -68,7 +70,20 @@ export default function AdminDashboard() {
                 setLoading(false);
             }
         };
+        
+        const fetchAiReport = async () => {
+            try {
+                const res = await axiosClient.get('/dashboard/ai-report/');
+                setAiReport(res.data.report);
+            } catch (error) {
+                setAiReport("Failed to load AI Insights.");
+            } finally {
+                setAiLoading(false);
+            }
+        };
+        
         fetchDashboardData();
+        fetchAiReport();
     }, []);
 
     const handleLogout = () => {
@@ -123,6 +138,26 @@ export default function AdminDashboard() {
                                 icon={<CalendarOff className="w-8 h-8 text-amber-500" />} 
                                 bg="bg-amber-50 dark:bg-amber-900/20"
                             />
+                        </div>
+
+                        {/* AI Insights Card */}
+                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-6 rounded-2xl shadow-sm border border-indigo-100 dark:border-indigo-800/30">
+                            <div className="flex items-center gap-2 mb-3">
+                                <Sparkles className="text-indigo-600 dark:text-indigo-400 w-5 h-5" />
+                                <h2 className="text-lg font-bold text-indigo-900 dark:text-indigo-300">AI Executive Summary</h2>
+                            </div>
+                            {aiLoading ? (
+                                <div className="animate-pulse flex space-x-4">
+                                    <div className="flex-1 space-y-4 py-1">
+                                        <div className="h-4 bg-indigo-200 dark:bg-indigo-700/50 rounded w-3/4"></div>
+                                        <div className="h-4 bg-indigo-200 dark:bg-indigo-700/50 rounded"></div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="text-indigo-800 dark:text-indigo-200/80 text-sm leading-relaxed whitespace-pre-wrap">
+                                    {aiReport}
+                                </p>
+                            )}
                         </div>
 
                         {/* Charts and Tables */}

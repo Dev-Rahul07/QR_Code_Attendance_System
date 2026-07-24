@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 
 // Pages & Components (We will create these next)
 import Login from './pages/Login';
+import Register from './pages/Register';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import UserManagement from './pages/admin/UserManagement';
@@ -29,6 +30,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             
             <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
               <Route element={<Layout />}>

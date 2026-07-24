@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from .models import Notification
 from .serializers import NotificationSerializer
 
-class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
+class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
